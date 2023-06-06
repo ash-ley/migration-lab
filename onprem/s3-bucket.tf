@@ -1,9 +1,9 @@
 resource "aws_s3_bucket" "backend" {
-    bucket = "tf-backend-onprem-migrationlab"
+  bucket = "backend-onprem-migrationlab"
 
-    tags = {
-        Name        = "Terraform Backend OnPrem"
-    }
+  tags = {
+    Name = "Terraform Backend OnPrem"
+  }
 }
 
 resource "aws_s3_bucket_versioning" "this" {
