@@ -85,6 +85,22 @@ jobs:
               body: output
             })
 
+      - uses: terraform-linters/setup-tflint@v3
+        name: Setup TFLint
+        with:
+          tflint_version: latest
+
+      - name: Show version
+        run: tflint --version
+
+      - name: Init TFLint
+        run: tflint -chdir=onprem/ --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Run TFLint
+        run: tflint -chdir=onprem/ -f compact
+
   migration-test:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/feat/**'
@@ -155,6 +171,22 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
+      
+      - uses: terraform-linters/setup-tflint@v3
+        name: Setup TFLint
+        with:
+          tflint_version: latest
+  
+      - name: Show version
+        run: tflint --version
+  
+      - name: Init TFLint
+        run: tflint -chdir=migration/ --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+  
+      - name: Run TFLint
+        run: tflint -chdir=migration/ -f compact
 
   onprem-deploy:
     runs-on: ubuntu-latest
