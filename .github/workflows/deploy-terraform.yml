@@ -37,16 +37,16 @@ jobs:
 
       - name: Terraform fmt
         id: fmt
-        run: terraform fmt -chdir=onprem/ -check
+        run: terraform -chdir=onprem/ fmt -check
         continue-on-error: true
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -chdir=onprem/ -no-color
+        run: terraform -chdir=onprem/ validate -no-color
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -chdir=onprem/ -no-color
+        run: terraform -chdir=onprem/ plan -no-color
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
@@ -108,16 +108,16 @@ jobs:
 
       - name: Terraform fmt
         id: fmt
-        run: terraform fmt -chdir=migration/ -check
+        run: terraform -chdir=migration/ fmt -check
         continue-on-error: true
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -chdir=migration/ -no-color
+        run: terraform -chdir=migration/ validate -no-color
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -chdir=migration/ -no-color
+        run: terraform -chdir=migration/ plan -no-color
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
@@ -179,20 +179,20 @@ jobs:
 
       - name: Terraform fmt
         id: fmt
-        run: terraform fmt -chdir=onprem/ -check
+        run: terraform -chdir=onprem/ fmt -check
         continue-on-error: true
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -chdir=onprem/ -no-color
+        run: terraform -chdir=onprem/ validate -no-color
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -chdir=onprem/ -no-color
+        run: terraform -chdir=onprem/ plan -no-color
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -chdir=onprem/ --auto-approve
+        run: terraform -chdir=onprem/ apply --auto-approve
 
   migration-deploy:
     runs-on: ubuntu-latest
@@ -217,17 +217,17 @@ jobs:
 
       - name: Terraform fmt
         id: fmt
-        run: terraform fmt -chdir=migration/ -check
+        run: terraform -chdir=migration/ fmt -check
         continue-on-error: true
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -chdir=migration/ -no-color
+        run: terraform -chdir=migration/ validate -no-color
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -chdir=migration/ -no-color
+        run: terraform -chdir=migration/ plan -no-color
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -chdir=migration/ --auto-approve
+        run: terraform -chdir=migration/ apply --auto-approve
