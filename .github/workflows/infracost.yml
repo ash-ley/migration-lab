@@ -1,0 +1,72 @@
+on: [pull_request]
+jobs:
+  infracost:
+    name: Infracost
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required to post comments
+      pull-requests: write
+
+    env:
+      TF_ROOT_MIGRATION: migration/
+      TF_ROOT_ONPREM: onprem/
+
+    steps:
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Checkout base branch
+        uses: actions/checkout@v3
+        with:
+          ref: '${{ github.event.pull_request.base.ref }}'
+
+      # Generate Infracost JSON file as the baseline.
+      - name: Generate Infracost cost estimate baseline for migration
+        run: |
+          infracost breakdown --path=${TF_ROOT_MIGRATION} \
+                              --format=json \
+                              --out-file=/tmp/infracost-base-migration.json
+
+      - name: Generate Infracost cost estimate baseline for onprem
+        run: |
+            infracost breakdown --path=${TF_ROOT_ONPREM} \
+                                --format=json \
+                                --out-file=/tmp/infracost-base-onprem.json
+
+      # Checkout the current PR branch so we can create a diff.
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+
+      # Generate an Infracost diff and save it to a JSON file.
+      - name: Generate Infracost diff for migration
+        run: |
+          infracost diff --path=${TF_ROOT_MIGRATION} \
+                          --format=json \
+                          --compare-to=/tmp/infracost-base-migration.json \
+                          --out-file=/tmp/infracost-migration.json
+
+      - name: Post Infracost comment for migration
+        run: |
+            infracost comment github --path=/tmp/infracost-migration.json \
+                                     --repo=$GITHUB_REPOSITORY \
+                                     --github-token=${{github.token}} \
+                                     --pull-request=${{github.event.pull_request.number}} \
+                                     --behavior=update
+
+      - name: Generate Infracost diff for onprem
+        run: |
+            infracost diff --path=${TF_ROOT_ONPREM} \
+                            --format=json \
+                            --compare-to=/tmp/infracost-base-onprem.json \
+                            --out-file=/tmp/infracost-onprem.json
+
+      - name: Post Infracost comment for onprem
+        run: |
+            infracost comment github --path=/tmp/infracost-onprem.json \
+                                    --repo=$GITHUB_REPOSITORY \
+                                    --github-token=${{github.token}} \
+                                    --pull-request=${{github.event.pull_request.number}} \
+                                    --behavior=update
