@@ -10,14 +10,17 @@ data "aws_availability_zones" "available" {
 }
 
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.0.0"
 
   name = "onprem-vpc"
   cidr = var.vpc-cidr
 
-  azs             = local.availability-zones
-  private_subnets = [local.private_subnet_cidr[0], local.private_subnet_cidr[1]]
-  public_subnets  = [local.public_subnet_cidr[0], local.public_subnet_cidr[1]]
+  azs                   = local.availability-zones
+  private_subnets       = [local.private_subnet_cidr[0], local.private_subnet_cidr[1]]
+  private_subnet_suffix = "db"
+  public_subnets        = [local.public_subnet_cidr[0], local.public_subnet_cidr[1]]
+  public_subnet_suffix  = "app"
 
   enable_nat_gateway = true
   single_nat_gateway = true
