@@ -89,7 +89,7 @@ jobs:
         run: tflint --version
 
       - name: Init TFLint
-        run: tflint -chdir=onprem/ --init
+        run: tflint --chdir=onprem/ --init
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -175,7 +175,7 @@ jobs:
         run: tflint --version
   
       - name: Init TFLint
-        run: tflint -chdir=migration/ --init
+        run: tflint --chdir=migration/ --init
         env:
           GITHUB_TOKEN: ${{ github.token }}
   
