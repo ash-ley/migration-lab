@@ -16,9 +16,10 @@ module "vpc" {
   name = "migration-vpc"
   cidr = var.vpc-cidr
 
-  azs             = local.availability-zones
-  private_subnets = flatten([for i, v in local.availability-zones : [cidrsubnet(var.vpc-cidr, 9, element(local.app_netnum, i)), cidrsubnet(var.vpc-cidr, 9, element(local.db_netnum, i))]])
-  public_subnets  = [for i, v in local.availability-zones : cidrsubnet(var.vpc-cidr, 8, element(local.staging_netnum, i))]
+  azs                  = local.availability-zones
+  private_subnets      = flatten([for i, v in local.availability-zones : [cidrsubnet(var.vpc-cidr, 9, element(local.app_netnum, i)), cidrsubnet(var.vpc-cidr, 9, element(local.db_netnum, i))]])
+  public_subnets       = [for i, v in local.availability-zones : cidrsubnet(var.vpc-cidr, 8, element(local.staging_netnum, i))]
+  public_subnet_suffix = "staging"
 
   enable_nat_gateway = true
   single_nat_gateway = true
