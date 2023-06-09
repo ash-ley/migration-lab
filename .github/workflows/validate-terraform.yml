@@ -3,6 +3,7 @@ on:
   pull_request:
     types:
       - opened
+      - synchronize
 env:
   AWS_REGION : "eu-west-1"
   TF_VAR_db_password: ${{ secrets.DB_PASS }}
