@@ -7,23 +7,30 @@ resource "aws_lb" "this" {
 
 }
 
-/* resource "aws_lb_listener" "https" {
+resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.this.arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  #certificate_arn   = aws_acm_certificate_validation.this.certificate_arn
+  certificate_arn   = aws_acm_certificate.cert.arn
 
   default_action {
-    type = "forward"
-    #target_group_arn = aws_lb_target_group.front_end.arn
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app.arn
   }
-} */
+}
 
-/* resource "aws_lb_listener_certificate" "this" {
+resource "aws_lb_target_group" "app" {
+  name     = "phpmyadmin"
+  port     = 443
+  protocol = "HTTPS"
+  vpc_id   = module.vpc.vpc_id
+}
+
+resource "aws_lb_listener_certificate" "this" {
   listener_arn    = aws_lb_listener.https.arn
   certificate_arn = aws_acm_certificate.cert.arn
-} */
+}
 
 resource "aws_acm_certificate" "cert" {
   domain_name       = "phpmyadmin.ashley.aws.crlabs.cloud"
@@ -53,6 +60,18 @@ resource "aws_route53_record" "this" {
   ttl             = 300
   type            = each.value.type
   zone_id         = aws_route53_zone.public.zone_id
+}
+
+resource "aws_route53_record" "lb" {
+  zone_id = aws_route53_zone.public.zone_id
+  name    = "phpmyadmin.ashley.aws.crlabs.cloud"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.this.dns_name
+    zone_id                = aws_lb.this.zone_id
+    evaluate_target_health = true
+  }
 }
 
 resource "aws_acm_certificate_validation" "this" {
