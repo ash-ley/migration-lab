@@ -1,5 +1,5 @@
 data "template_file" "user_data_app" {
-  template = file("${path.cwd}/templates/app_user_data.sh.tpl")
+  template = file("${path.module}/templates/app_user_data.sh.tpl")
   vars = {
     mysql_root_password = var.db_password
     db_private_ip       = aws_instance.db.private_ip
@@ -7,7 +7,7 @@ data "template_file" "user_data_app" {
 }
 
 data "template_file" "user_data_db" {
-  template = file("${path.cwd}/templates/db_user_data.sh.tpl")
+  template = file("${path.module}/templates/db_user_data.sh.tpl")
   vars = {
     mysql_root_password = var.db_password
     app_private_ip      = var.app_private_ip
