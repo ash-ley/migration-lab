@@ -16,11 +16,12 @@ module "vpc" {
   name = "onprem-vpc"
   cidr = var.vpc-cidr
 
-  azs                   = local.availability-zones
-  private_subnets       = [local.private_subnet_cidr[0], local.private_subnet_cidr[1]]
-  private_subnet_suffix = "db"
-  public_subnets        = [local.public_subnet_cidr[0], local.public_subnet_cidr[1]]
-  public_subnet_suffix  = "app"
+  azs                     = local.availability-zones
+  private_subnets         = [local.private_subnet_cidr[0], local.private_subnet_cidr[1]]
+  private_subnet_suffix   = "db"
+  public_subnets          = [local.public_subnet_cidr[0], local.public_subnet_cidr[1]]
+  public_subnet_suffix    = "app"
+  map_public_ip_on_launch = true
 
   enable_nat_gateway = true
   single_nat_gateway = true
