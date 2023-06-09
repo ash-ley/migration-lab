@@ -5,6 +5,7 @@ on:
       - opened
 env:
   AWS_REGION : "eu-west-1"
+  TF_VAR_db_password: ${{ secrets.DB_PASS }}
 permissions: write-all
 jobs:
   onprem-test:
