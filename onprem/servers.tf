@@ -38,6 +38,6 @@ resource "aws_network_interface" "app" {
 
   attachment {
     instance     = aws_instance.app.id
-    device_index = 0
+    device_index = 1
   }
 }
