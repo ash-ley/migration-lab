@@ -11,7 +11,7 @@ resource "aws_instance" "db" {
   ami                    = data.aws_ami.my_aws_ami.id
   instance_type          = var.db_instance_type
   subnet_id              = module.vpc.private_subnets[0]
-  user_data              = templatefile("${path.module}/templates/db_user_data.tftpl", { mysql_root_password = var.db_password, app_private_ip = var.app_private_ip })
+  user_data              = templatefile("${path.module}/templates/db_user_data.sh.tftpl", { mysql_root_password = var.db_password, app_private_ip = var.app_private_ip })
   vpc_security_group_ids = [aws_security_group.db.id]
 
   tags = {
@@ -20,11 +20,12 @@ resource "aws_instance" "db" {
 }
 
 resource "aws_instance" "app" {
-  ami                    = data.aws_ami.my_aws_ami.id
-  instance_type          = var.app_instance_type
-  subnet_id              = module.vpc.public_subnets[0]
-  user_data              = templatefile("${path.module}/templates/app_user_data.tftpl", { mysql_root_password = var.db_password, db_private_ip = aws_instance.db.private_ip })
-  vpc_security_group_ids = [aws_security_group.app.id]
+  ami                         = data.aws_ami.my_aws_ami.id
+  instance_type               = var.app_instance_type
+  subnet_id                   = module.vpc.public_subnets[0]
+  user_data                   = templatefile("${path.module}/templates/app_user_data.sh.tftpl", { mysql_root_password = var.db_password, db_private_ip = aws_instance.db.private_ip })
+  vpc_security_group_ids      = [aws_security_group.app.id]
+  associate_public_ip_address = true
 
   tags = {
     Name = "APP-SERVER"
