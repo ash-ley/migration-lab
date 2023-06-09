@@ -31,7 +31,7 @@ resource "aws_instance" "app" {
   }
 }
 
-resource "aws_network_interface" "db" {
+resource "aws_network_interface" "app" {
   subnet_id       = module.vpc.public_subnets[0]
   private_ips     = [var.app_private_ip]
   security_groups = [aws_security_group.db.id]
