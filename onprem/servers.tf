@@ -10,6 +10,7 @@ data "aws_ami" "my_aws_ami" {
 resource "aws_instance" "db" {
   ami                    = data.aws_ami.my_aws_ami.id
   instance_type          = var.db_instance_type
+  key_name               = "db"
   subnet_id              = module.vpc.private_subnets[0]
   user_data              = templatefile("${path.module}/templates/db_user_data.sh.tftpl", { mysql_root_password = var.db_password, app_private_ip = var.app_private_ip })
   vpc_security_group_ids = [aws_security_group.db.id]
