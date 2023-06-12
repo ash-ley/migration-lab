@@ -20,6 +20,9 @@ resource "aws_instance" "db" {
 }
 
 resource "aws_instance" "app" {
+  provisioner "local-exec" {
+    command = "sleep 180"
+  }
   ami                         = data.aws_ami.my_aws_ami.id
   instance_type               = var.app_instance_type
   subnet_id                   = module.vpc.public_subnets[0]
