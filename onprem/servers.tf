@@ -27,7 +27,6 @@ resource "aws_instance" "app" {
   ami           = data.aws_ami.my_aws_ami.id
   instance_type = var.app_instance_type
   user_data     = templatefile("${path.module}/templates/app_user_data.sh.tftpl", { mysql_root_password = var.db_password, db_private_ip = aws_instance.db.private_ip })
-  #vpc_security_group_ids = [aws_security_group.app.id]
 
   network_interface {
     device_index         = 0
