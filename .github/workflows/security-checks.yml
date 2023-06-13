@@ -28,8 +28,7 @@ jobs:
           id: checkov
           uses: bridgecrewio/checkov-action@master
           with:
-            directory: onprem/ 
-            soft_fail: true
+            directory: onprem/
             download_external_modules: true
             github_pat: ${{ secrets.GH_PAT }}
           env:
@@ -53,7 +52,6 @@ jobs:
           uses: bridgecrewio/checkov-action@master
           with:
             directory: migration/
-            soft_fail: true
             download_external_modules: true
             github_pat: ${{ secrets.GH_PAT }}
           env:

@@ -1,10 +1,12 @@
 resource "aws_lb" "this" {
-  name               = "migration-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.lb.id]
-  subnets            = [for subnet in module.vpc.public_subnets : subnet]
-
+  name                       = "migration-alb"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.lb.id]
+  subnets                    = [for subnet in module.vpc.public_subnets : subnet]
+  enable_deletion_protection = true
+  drop_invalid_header_fields = true
+  #checkov:skip=CKV_AWS_91:Logging is to be enabled in a future implementation
 }
 
 resource "aws_lb_listener" "https" {
@@ -25,6 +27,7 @@ resource "aws_lb_target_group" "app" {
   port     = 443
   protocol = "HTTPS"
   vpc_id   = module.vpc.vpc_id
+  #checkov:skip=CKV_AWS_261:Target group has no attached instances so this is impossible for now
 }
 
 resource "aws_lb_listener_certificate" "this" {
@@ -35,6 +38,10 @@ resource "aws_lb_listener_certificate" "this" {
 resource "aws_acm_certificate" "cert" {
   domain_name       = "phpmyadmin.ashley.aws.crlabs.cloud"
   validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 
   tags = {
     Environment = "migration"

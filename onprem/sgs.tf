@@ -19,6 +19,7 @@ resource "aws_security_group" "db" {
   }
 
   egress {
+    description      = "Outbound open"
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
@@ -49,6 +50,7 @@ resource "aws_security_group" "app" {
   }
 
   egress {
+    description      = "Outbound open"
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
