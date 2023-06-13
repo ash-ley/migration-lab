@@ -1,0 +1,61 @@
+name: Terraform Security Scanning
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  push:
+    branches:
+        - main
+env:
+  AWS_REGION : "eu-west-1"
+permissions: write-all
+jobs:
+    onprem-checks:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Git clone the repository
+          uses: actions/checkout@v3
+  
+        - name: tfsec
+          uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+          with:
+            github_token: ${{ github.token }}
+            working_directory: onprem/
+            tfsec_args: --soft-fail
+
+        - name: Run Checkov action
+          id: checkov
+          uses: bridgecrewio/checkov-action@master
+          with:
+            directory: onprem/ 
+            soft_fail: true
+            download_external_modules: true
+            github_pat: ${{ secrets.GH_PAT }}
+          env:
+            GITHUB_OVERRIDE_URL: true  # optional: this can be used to instruct the action to override the global GIT config to inject the PAT to the URL
+
+    migration-checks:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Git clone the repository
+          uses: actions/checkout@v3
+
+        - name: tfsec
+          uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+          with:
+              github_token: ${{ github.token }}
+              working_directory: migration/
+              tfsec_args: --soft-fail
+
+        - name: Run Checkov action
+          id: checkov
+          uses: bridgecrewio/checkov-action@master
+          with:
+            directory: migration/
+            soft_fail: true
+            download_external_modules: true
+            github_pat: ${{ secrets.GH_PAT }}
+          env:
+            GITHUB_OVERRIDE_URL: true  # optional: this can be used to instruct the action to override the global GIT config to inject the PAT to the URL
+    
