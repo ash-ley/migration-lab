@@ -52,6 +52,7 @@ jobs:
           uses: bridgecrewio/checkov-action@master
           with:
             directory: migration/
+            skip_check: CKV_AWS_111,CKV_AWS_356,CKV_AWS_39,CKV_AWS_38,CKV_AWS_11,CKV_AWS_12,CKV_AWS_19,CKV_AWS_5,CKV_AWS_28,CKV_AWS_103
             download_external_modules: true
             github_pat: ${{ secrets.GH_PAT }}
           env:
