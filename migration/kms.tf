@@ -7,3 +7,8 @@ resource "aws_kms_key" "ebs" {
     Name = "ebs-key"
   }
 }
+
+resource "aws_kms_alias" "ebs" {
+  name          = "alias/ebs-key"
+  target_key_id = aws_kms_key.ebs.key_id
+}

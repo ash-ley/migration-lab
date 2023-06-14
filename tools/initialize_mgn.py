@@ -9,6 +9,7 @@ def main():
         create_mgn_roles()
         client.initialize_service()
         create_replication_template()
+        create_launch_template()
         create_mgn_iam_user()
 
 
@@ -27,34 +28,107 @@ def get_replication_template():
 
 def create_replication_template():
     client.create_replication_configuration_template(
-        associateDefaultSecurityGroup=True,
+        associateDefaultSecurityGroup=False,
         bandwidthThrottling=0,
         createPublicIP=False,
         dataPlaneRouting='PRIVATE_IP',
         defaultLargeStagingDiskType='GP3',
-        ebsEncryption='DEFAULT',
-        replicationServerInstanceType='t3.small',
-        replicationServersSecurityGroupsIDs=[],
+        ebsEncryption='CUSTOM',
+        ebsEncryptionKeyArn=get_kms_key(),
+        replicationServerInstanceType='t2.medium',
+        replicationServersSecurityGroupsIDs=[get_replication_sg()],
         stagingAreaSubnetId=get_staging_area_subnet_id(),
         stagingAreaTags={},
         useDedicatedReplicationServer=False
     )
 
 
+def create_launch_template():
+    client.create_launch_configuration_template(
+        postLaunchActions={
+            'deployment': 'TEST_AND_CUTOVER',
+            'ssmDocuments': [
+                {
+                    'actionName': 'cloudwatchAgent',
+                    'mustSucceedForCutover': True,
+                    'parameters': {
+                        'action': [
+                          'configure',
+                        ],
+                        'mode': [
+                            'ec2',
+                        ],
+                        'optionalConfigurationLocation': [
+                            "default",
+                        ],
+                        'optionalConfigurationSource': [
+                            'default',
+                        ],
+                        'optionalRestart': [
+                            'yes',
+                        ],
+                    },
+                    'ssmDocumentName': 'AmazonCloudWatch-ManageAgent',
+                    'timeoutSeconds': 120
+                },
+            ]
+        }
+    )
+
+
+def get_replication_sg():
+    ec2_client = boto3.client('ec2')
+    sg = ec2_client.describe_security_groups(
+        Filters=[
+            {
+                'Name': 'tag:Name',
+                'Values': [
+                        'replication_sg',
+                ]
+            }
+        ]
+    )
+    return sg['SecurityGroups'][0]['GroupId']
+
+
+def get_kms_key():
+    kms_client = boto3.client('kms')
+    key = kms_client.describe_key(
+        KeyId='alias/ebs-key'
+    )
+    return key['KeyMetadata']['Arn']
+
+
 def get_staging_area_subnet_id() -> str:
     ec2_client = boto3.client('ec2')
-    res = boto3.resource('ec2')
-    resp = ec2_client.describe_vpcs()
-    vpc = res.Vpc(resp.get('Vpcs')[0].get('VpcId'))
-    subnet_id: str = ""
 
-    for subnet in vpc.subnets.all():
-        subnet_name = [tag.get('Value')
-                       for tag in subnet.tags if tag.get('Key') == "Name"][0]
-        if subnet_name.split('-')[-2].lower() == "data":
-            subnet_id = subnet.subnet_id
-            break
-    return subnet_id
+    vpc = ec2_client.describe_vpcs(
+        Filters=[
+            {
+                'Name': 'tag:Name',
+                'Values': [
+                    'migration-vpc',
+                ]
+            }
+        ]
+    )
+    subnet = ec2_client.describe_subnets(
+        Filters=[
+            {
+                'Name': 'tag:Name',
+                'Values': [
+                    'migration-vpc-private-eu-west-1a',
+                ]
+            },
+            {
+                'Name': 'vpc-id',
+                'Values': [
+                    vpc['Vpcs'][0]['VpcId'],
+                ]
+            }
+        ]
+    )
+    return subnet['Subnets'][0]['SubnetId']
 
 
 def create_mgn_iam_user():
