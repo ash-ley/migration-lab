@@ -8,11 +8,11 @@ def main():
     if not get_home_control_region():
         create_migration_hub_service_control()
     if not is_mgn_service_initialized():
-        create_mgn_roles()
-        client.initialize_service()
+        # create_mgn_roles()
+        # client.initialize_service()
         create_replication_template()
         create_launch_template()
-        create_mgn_iam_user()
+        # create_mgn_iam_user()
 
 
 def get_account_id():
@@ -162,31 +162,31 @@ def get_staging_area_subnet_id() -> str:
     return subnet['Subnets'][0]['SubnetId']
 
 
-def create_mgn_iam_user():
-    mgn_iam_user_name = "MGNUser"
-    boto3.client('iam').create_user(UserName=mgn_iam_user_name)
-    mgn_user = boto3.resource('iam').User(mgn_iam_user_name)
-    mgn_user.attach_policy(
-        PolicyArn='arn:aws:iam::aws:policy/AWSApplicationMigrationAgentPolicy')
+# def create_mgn_iam_user():
+#     mgn_iam_user_name = "MGNUser"
+#     boto3.client('iam').create_user(UserName=mgn_iam_user_name)
+#     mgn_user = boto3.resource('iam').User(mgn_iam_user_name)
+#     mgn_user.attach_policy(
+#         PolicyArn='arn:aws:iam::aws:policy/AWSApplicationMigrationAgentPolicy')
 
 
-def create_mgn_roles():
-    assume_role_policy = {"Version": "2012-10-17", "Statement": [
-        {"Effect": "Allow", "Principal": {"Service": "ec2.amazonaws.com"}, "Action": "sts:AssumeRole"}]}
-    iam_client = boto3.client('iam')
-    iam_resource = boto3.resource('iam')
-    for role_name in ["AWSApplicationMigrationReplicationServerRole", "AWSApplicationMigrationConversionServerRole", "AWSApplicationMigrationMGHRole"]:
-        try:
-            iam_client.create_role(Path='/service-role/', RoleName=role_name,
-                                   AssumeRolePolicyDocument=json.dumps(assume_role_policy))
-        except iam_client.exceptions.EntityAlreadyExistsException:
-            continue
-    iam_resource.Role("AWSApplicationMigrationReplicationServerRole").attach_policy(
-        PolicyArn="arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationReplicationServerPolicy")
-    iam_resource.Role("AWSApplicationMigrationConversionServerRole").attach_policy(
-        PolicyArn="arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationConversionServerPolicy")
-    iam_resource.Role("AWSApplicationMigrationMGHRole").attach_policy(
-        PolicyArn="arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationMGHAccess")
+# def create_mgn_roles():
+#     assume_role_policy = {"Version": "2012-10-17", "Statement": [
+#         {"Effect": "Allow", "Principal": {"Service": "ec2.amazonaws.com"}, "Action": "sts:AssumeRole"}]}
+#     iam_client = boto3.client('iam')
+#     iam_resource = boto3.resource('iam')
+#     for role_name in ["AWSApplicationMigrationReplicationServerRole", "AWSApplicationMigrationConversionServerRole", "AWSApplicationMigrationMGHRole"]:
+#         try:
+#             iam_client.create_role(Path='/service-role/', RoleName=role_name,
+#                                    AssumeRolePolicyDocument=json.dumps(assume_role_policy))
+#         except iam_client.exceptions.EntityAlreadyExistsException:
+#             continue
+#     iam_resource.Role("AWSApplicationMigrationReplicationServerRole").attach_policy(
+#         PolicyArn="arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationReplicationServerPolicy")
+#     iam_resource.Role("AWSApplicationMigrationConversionServerRole").attach_policy(
+#         PolicyArn="arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationConversionServerPolicy")
+#     iam_resource.Role("AWSApplicationMigrationMGHRole").attach_policy(
+#         PolicyArn="arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationMGHAccess")
 
 
 if __name__ == "__main__":
