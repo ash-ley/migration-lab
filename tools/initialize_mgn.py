@@ -5,12 +5,43 @@ client = boto3.client('mgn')
 
 
 def main():
+    if not get_home_control_region():
+        create_migration_hub_service_control()
     if not is_mgn_service_initialized():
         create_mgn_roles()
         client.initialize_service()
         create_replication_template()
         create_launch_template()
         create_mgn_iam_user()
+
+
+def get_account_id():
+    sts_client = boto3.client("sts")
+    accountID = sts_client.get_caller_identity()["Account"]
+    return accountID
+
+
+def get_home_control_region():
+    mgh = boto3.client('migrationhub-config')
+    response = mgh.describe_home_region_controls(
+        Target={
+            'Type': 'ACCOUNT',
+            'Id': get_account_id()
+        }
+    )
+    return response['HomeRegionControls']
+
+
+def create_migration_hub_service_control():
+    mgh = boto3.client('migrationhub-config')
+    session = boto3.session.Session()
+    response = mgh.create_home_region_control(
+        HomeRegion=session.region_name,
+        Target={
+            'Type': 'ACCOUNT',
+            'Id': get_account_id()
+        }
+    )
 
 
 def is_mgn_service_initialized() -> bool:
