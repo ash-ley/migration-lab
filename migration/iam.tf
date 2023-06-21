@@ -28,3 +28,23 @@ resource "aws_iam_role_policy_attachment" "this" {
   role       = aws_iam_role.this.name
   policy_arn = local.custom_role_policy_arns[count.index]
 }
+
+resource "aws_iam_role" "mgn" {
+  name = "mgn_role"
+
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : {
+      "Effect" : "Allow",
+      "Principal" : { "Service" : "lambda.amazonaws.com",
+        "AWS" : "${aws_iam_role.iam_for_lambda.arn}"
+      },
+      "Action" : "sts:AssumeRole"
+    }
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "mgn" {
+  role       = aws_iam_role.mgn.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSApplicationMigrationAgentInstallationPolicy"
+}
