@@ -8,7 +8,15 @@ resource "aws_security_group" "replication" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["172.16.0.0/16"]
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "1500 for replication"
+    from_port   = 1500
+    to_port     = 1500
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
